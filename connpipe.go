@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	connPipeBufferSize = 4096
+	socatBufferSize = 4096
 )
 
 // connects two net.Conn; reads from the first are written to the second,
 // and vice versa
-type ConnPipe struct {
+type Socat struct {
 	c1 net.Conn
 	c2 net.Conn
 
@@ -22,8 +22,8 @@ type ConnPipe struct {
 	closeOnce sync.Once
 }
 
-func NewConnPipe(c1, c2 net.Conn) *ConnPipe {
-	c := &ConnPipe{
+func NewSocat(c1, c2 net.Conn) *Socat {
+	c := &Socat{
 		c1:   c1,
 		c2:   c2,
 		done: make(chan error, 1),
@@ -33,8 +33,8 @@ func NewConnPipe(c1, c2 net.Conn) *ConnPipe {
 	return c
 }
 
-func (t *ConnPipe) funnel(d1, d2 net.Conn) {
-	buf := make([]byte, connPipeBufferSize)
+func (t *Socat) funnel(d1, d2 net.Conn) {
+	buf := make([]byte, socatBufferSize)
 	for {
 		n, err := d1.Read(buf)
 		if err != nil {
@@ -55,19 +55,19 @@ func (t *ConnPipe) funnel(d1, d2 net.Conn) {
 	}
 }
 
-func (t *ConnPipe) Wait() (err error) {
+func (t *Socat) Wait() (err error) {
 	err = <-t.done
 	t.Close()
 	return
 }
 
-func (t *ConnPipe) Close() {
+func (t *Socat) Close() {
 	t.closeOnce.Do(func() {
 		t.realClose()
 	})
 }
 
-func (t *ConnPipe) realClose() (err error) {
+func (t *Socat) realClose() (err error) {
 	e1 := t.c1.Close()
 	e2 := t.c2.Close()
 	if e1 != nil {
