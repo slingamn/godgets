@@ -20,6 +20,7 @@ type Socat struct {
 
 	done      chan error
 	closeOnce sync.Once
+	closeErr  error
 }
 
 func NewSocat(c1, c2 net.Conn) *Socat {
@@ -61,10 +62,11 @@ func (t *Socat) Wait() (err error) {
 	return
 }
 
-func (t *Socat) Close() {
+func (t *Socat) Close() (err error) {
 	t.closeOnce.Do(func() {
-		t.realClose()
+		t.closeErr = t.realClose()
 	})
+	return t.closeErr
 }
 
 func (t *Socat) realClose() (err error) {
