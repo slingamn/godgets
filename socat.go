@@ -4,7 +4,7 @@
 package godgets
 
 import (
-	"net"
+	"io"
 	"sync"
 )
 
@@ -12,18 +12,18 @@ const (
 	socatBufferSize = 4096
 )
 
-// connects two net.Conn; reads from the first are written to the second,
+// connects two io.ReadWriteCloser; reads from the first are written to the second,
 // and vice versa
 type Socat struct {
-	c1 net.Conn
-	c2 net.Conn
+	c1 io.ReadWriteCloser
+	c2 io.ReadWriteCloser
 
 	done      chan error
 	closeOnce sync.Once
 	closeErr  error
 }
 
-func NewSocat(c1, c2 net.Conn) *Socat {
+func NewSocat(c1, c2 io.ReadWriteCloser) *Socat {
 	c := &Socat{
 		c1:   c1,
 		c2:   c2,
@@ -34,7 +34,7 @@ func NewSocat(c1, c2 net.Conn) *Socat {
 	return c
 }
 
-func (t *Socat) funnel(d1, d2 net.Conn) {
+func (t *Socat) funnel(d1, d2 io.ReadWriteCloser) {
 	buf := make([]byte, socatBufferSize)
 	for {
 		n, err := d1.Read(buf)
