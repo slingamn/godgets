@@ -8,10 +8,6 @@ import (
 	"sync"
 )
 
-const (
-	socatBufferSize = 4096
-)
-
 // connects two io.ReadWriteCloser; reads from the first are written to the second,
 // and vice versa
 type Socat struct {
@@ -27,7 +23,7 @@ func NewSocat(c1, c2 io.ReadWriteCloser) *Socat {
 	c := &Socat{
 		c1:   c1,
 		c2:   c2,
-		done: make(chan error, 1),
+		done: make(chan error, 2),
 	}
 	go c.funnel(c1, c2)
 	go c.funnel(c2, c1)
@@ -35,31 +31,18 @@ func NewSocat(c1, c2 io.ReadWriteCloser) *Socat {
 }
 
 func (t *Socat) funnel(d1, d2 io.ReadWriteCloser) {
-	buf := make([]byte, socatBufferSize)
-	for {
-		n, err := d1.Read(buf)
-		if err != nil {
-			select {
-			case t.done <- err:
-			default:
-			}
-			return
-		}
-		_, err = d2.Write(buf[:n])
-		if err != nil {
-			select {
-			case t.done <- err:
-			default:
-			}
-			return
-		}
-	}
+	_, err := io.Copy(d1, d2)
+	t.done <- err
 }
 
 func (t *Socat) Wait() (err error) {
-	err = <-t.done
+	e1 := <-t.done
+	e2 := <-t.done
 	t.Close()
-	return
+	if e1 != nil {
+		return e1
+	}
+	return e2
 }
 
 func (t *Socat) Close() (err error) {
