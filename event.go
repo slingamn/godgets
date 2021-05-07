@@ -3,10 +3,10 @@
 
 package godgets
 
-type Event (chan empty)
+type Event (chan struct{})
 
 func NewEvent() Event {
-	return make(chan empty)
+	return make(chan struct{})
 }
 
 func (e Event) Done() {
