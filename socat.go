@@ -36,13 +36,10 @@ func (t *Socat) funnel(d1, d2 io.ReadWriteCloser) {
 }
 
 func (t *Socat) Wait() (err error) {
-	e1 := <-t.done
-	e2 := <-t.done
+	// close immediately upon receiving an error / EOF from either Copy() call
+	err = <-t.done
 	t.Close()
-	if e1 != nil {
-		return e1
-	}
-	return e2
+	return
 }
 
 func (t *Socat) Close() (err error) {
