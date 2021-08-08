@@ -5,8 +5,8 @@ package godgets
 
 import (
 	"log"
-	"time"
 	"runtime/debug"
+	"time"
 )
 
 // HandlePanic is a generic panic handler that can restart a long-running
