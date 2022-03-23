@@ -7,6 +7,6 @@ import (
 
 func assertEqual(found, expected interface{}) {
 	if !reflect.DeepEqual(found, expected) {
-		panic(fmt.Sprintf("expected %#v, found %#v", expected, found))
+		panic(fmt.Sprintf("found %#v, expected %#v", found, expected))
 	}
 }
