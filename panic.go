@@ -1,5 +1,5 @@
 // Copyright (c) 2021 Shivaram Lingamneni
-// released under the MIT license
+// released under the 0BSD license
 
 package godgets
 
