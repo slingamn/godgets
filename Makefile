@@ -4,6 +4,7 @@ all: test
 
 test:
 	go test . && go vet .
+	(cd tests && go test . && go vet .)
 	./.check-gofmt.sh
 
 gofmt:
