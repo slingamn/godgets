@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Shivaram Lingamneni
 // released under the 0BSD license
 
-package utils
+package godgets
 
 import (
 	"sync/atomic"
