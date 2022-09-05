@@ -136,8 +136,10 @@ func (a *AutoreloadingConfigStore[T]) autoreload() {
 	defer func() {
 		a.stateMutex.Lock()
 		defer a.stateMutex.Unlock()
-		if !a.stopped {
-			a.reloadTimer = time.AfterFunc(a.CheckInterval, a.autoreload)
+		// defensively check that the client didn't set CheckInterval to zero:
+		if !a.stopped && a.CheckInterval != 0 {
+			a.reloadTimer.Stop()
+			a.reloadTimer.Reset(a.CheckInterval)
 		}
 	}()
 
