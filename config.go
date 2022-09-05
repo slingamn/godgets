@@ -12,8 +12,8 @@ import (
 
 /*
    AutoreloadingConfigStore is a configuration file store with the following properties:
-   1. Load() is a lock-free atomic pointer load
-   2. If Initialize() succeeds, subsequent calls to Load() return a valid (possibly stale) value
+   1. If Initialize() succeeds, subsequent calls to Get() return a valid (possibly stale) value
+   2. Get() is a wait-free atomic pointer load
    3. The configuration is atomically reloaded in the background if stat(2) shows an updated mtime
    4. ReloadIfChanged() synchronously checks the mtime and returns an up-to-date value, reloading if necessary
 
@@ -31,7 +31,7 @@ Example usage:
 	if _, err := cfg.Initialize(); err != nil {
 		log.Fatal(err)
 	}
-	// cfg.Load() is now safe for any goroutine to call
+	// cfg.Get() is now safe for any goroutine to call
 	go runApp()
 */
 
@@ -73,8 +73,8 @@ func (a *AutoreloadingConfigStore[T]) Initialize() (value *T, err error) {
 	return
 }
 
-// Load returns the most recent valid value of the config. It is lock-free.
-func (a *AutoreloadingConfigStore[T]) Load() *T {
+// Get returns the most recent valid value of the config. It is wait-free.
+func (a *AutoreloadingConfigStore[T]) Get() *T {
 	return a.value.Load()
 }
 
@@ -107,7 +107,7 @@ func (a *AutoreloadingConfigStore[T]) Reload() (*T, error) {
 
 	if err != nil {
 		// return the stale value with the error
-		return a.Load(), err
+		return a.Get(), err
 	}
 
 	a.stateMutex.Lock()
