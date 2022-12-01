@@ -30,9 +30,7 @@ func CopyMap[K comparable, V any](input map[K]V) (result map[K]V) {
 
 func CopySlice[T any](slice []T) (result []T) {
 	result = make([]T, len(slice))
-	for i, elem := range slice {
-		result[i] = elem
-	}
+	copy(result, slice)
 	return
 }
 
