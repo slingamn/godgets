@@ -37,7 +37,7 @@ func (semaphore Semaphore) TryAcquire() (acquired bool) {
 // of approximately `d` while waiting for it. It returns whether the acquire
 // was successful.
 func (semaphore Semaphore) AcquireWithTimeout(timeout time.Duration) (acquired bool) {
-	if timeout < 0 {
+	if timeout <= 0 {
 		return semaphore.TryAcquire()
 	}
 

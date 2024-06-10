@@ -35,6 +35,10 @@ func TestAcquireWithTimeout(t *testing.T) {
 	assertEqual(sem.AcquireWithTimeout(100*time.Millisecond), true)
 	sem.Release()
 
+	// test zero timeout
+	assertEqual(sem.AcquireWithTimeout(0), true)
+	sem.Release()
+
 	// XXX this test could fail if the machine is extremely overloaded
 	sem.Acquire()
 	go func() {
